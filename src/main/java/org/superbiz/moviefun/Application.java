@@ -1,7 +1,8 @@
 package org.superbiz.moviefun;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -44,14 +45,18 @@ public class Application {
     public DataSource moviesDataSource(DatabaseServiceCredentials serviceCredentials) {
         MysqlDataSource dataSource = new MysqlDataSource();
         dataSource.setURL(serviceCredentials.jdbcUrl("movies-mysql", "p-mysql"));
-        return dataSource;
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setDataSource(dataSource);
+        return new HikariDataSource(hikariConfig);
     }
 
     @Bean
     public DataSource albumsDataSource(DatabaseServiceCredentials serviceCredentials) {
         MysqlDataSource dataSource = new MysqlDataSource();
         dataSource.setURL(serviceCredentials.jdbcUrl("albums-mysql", "p-mysql"));
-        return dataSource;
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setDataSource(dataSource);
+        return new HikariDataSource(hikariConfig);
     }
 
     @Bean
@@ -70,7 +75,7 @@ public class Application {
         LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
         factoryBean.setDataSource(moviesDataSource);
         factoryBean.setJpaVendorAdapter(hibernateJpaVendorAdapter);
-        factoryBean.setPackagesToScan("org.superbiz.moviefun");
+        factoryBean.setPackagesToScan("org.superbiz.moviefun.movies");
         factoryBean.setPersistenceUnitName("moviesUnitName");
         return factoryBean;
     }
@@ -82,7 +87,7 @@ public class Application {
         LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
         factoryBean.setDataSource(albumsDataSource);
         factoryBean.setJpaVendorAdapter(hibernateJpaVendorAdapter);
-        factoryBean.setPackagesToScan("org.superbiz.moviefun");
+        factoryBean.setPackagesToScan("org.superbiz.moviefun.albums");
         factoryBean.setPersistenceUnitName("albumsUnitName");
         return factoryBean;
     }
